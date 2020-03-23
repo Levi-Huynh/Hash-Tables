@@ -81,7 +81,6 @@ def djb2(key):
     return hash_value
 
 
-
 ​
 # djb2 is actually used, also check out:
 # - sha256 - so unique, that never produced collision for 2 diff document , very secure. not too slow.
@@ -94,3 +93,6 @@ def djb2(key):
 # index to jump to where we want
 # hash tables allows us to use strings not just index to look things up, and store things
 # ^ HT extends power of arrays using indexes , allows us to store, access things using  strings, in constant time !!!
+# print warning when overrite value, handle collision
+
+#

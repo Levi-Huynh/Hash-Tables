@@ -41,3 +41,11 @@ see dynamicArraypt4.py
 # We need _deterministic_ hash functions: 
     need HF f() thats deterministic, if given smame string, / key, always get the same back the same index 
 
+# review
+
+# searching array O(n)
+# accessing array O(c)
+# creating/ storing key value pair O(c)
+# reading from hash table O(c)
+    -b/c don't have to traverse, just plug key 
+    into hash, get index, access array w/ index givne from hash function is O(c)
