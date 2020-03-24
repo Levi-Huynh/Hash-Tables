@@ -63,7 +63,7 @@ class LinkedPair:
     def __init__(self, key, value):
         self.key = key
         self.value = value
-        self.next = None
+        self.next = None  # self.next is None
 
     def __str__(self):
         return str(self.key) + str(self.value)

@@ -59,7 +59,8 @@ class HashTable:
         '''
         salt = 5381
         for char in key:
-            hashed = (salt << 5) + salt + char
+            hashed = ((salt << 5) + hashed) + ord(char)
+
         return hashed
 
     def _hash_mod(self, key):
@@ -67,13 +68,12 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        salt = 5381
-        # for char in key:
-        hashed = (salt * salt) + ord(key[-1]) + len(key)
-        # scrambles errything up
-        hashed1 = int(hashed % self.capacity)
-        print("hashed1", hashed1)
-        return hashed1
+        hashed = 5381
+
+        for char in key:
+            hashed = ((hashed << 5) + hashed) + ord(char)
+
+        return hashed % self.capacity
 
        # return self._hash(key) % self.capacity
 
@@ -92,9 +92,7 @@ class HashTable:
         3)  make one and put it there 
         4) Else add our original key/value pair to the linked list 
         '''
-        print("newkey", key)
-        my_index = self._hash_mod(key)
-        print("my_index", my_index)
+        """
         myDLL = DoublyLinkedList()
         if self.storage[my_index] is None:
             myDLL.add_to_head(key, value)
@@ -103,6 +101,20 @@ class HashTable:
             myDLL.add_to_head(key, value)
             self.storage[my_index] = myDLL
             print("test", self.storage[my_index])
+        """
+        print("newkey", key)
+        my_index = self._hash_mod(key)
+        print("my_index", my_index)
+
+        # create an instance of LinkedPair using k,v
+        _kv = LinkedPair(key, value)
+
+        # create memory space for self.strorage[my_index] & store in _kv.next.
+        # next default is none, setting this to temp var here which is none, creating space
+        _kv.next = self.storage[my_index]
+
+        # set self.storage[my_index] to the newly created LinkedPair(k, v)
+        self.storage[my_index] = _kv
 
     def remove(self, key):
         '''
@@ -117,7 +129,13 @@ class HashTable:
         4) To find the right node, 
         5) use remove method 
         '''
-        pass
+        my_index = self._hash_mod(key)
+
+        if self.storage[my_index] is None:
+            print("key not found")
+
+        else:
+            self.storage[my_index] = self.storage[my_index].next
 
     def retrieve(self, key):
         '''
@@ -126,14 +144,27 @@ class HashTable:
         Returns None if the key is not found.
 
         Fill this in.
-        '''
-        my_index = self._hash_mod(key)
         if self.storage[my_index] is None:
             return None
         else:
             return self.storage[my_index].contains(key)
+        '''
+        # get current index
+        my_index = self._hash_mod(key)
+        # save self.storage[my_index] to temp var
+        curr = self.storage[my_index]
 
-            # return self.storage[my_index].value  # must search thru DLL
+        # while curr is not none
+        while curr:
+            # if curr key equals key, return curr. value
+            if curr.key == key:
+                return curr.value
+
+            # iterate to the next value
+            curr = curr.next
+
+        # if key not equal to any curr.key, return None
+        return None
 
     def resize(self):
         '''
@@ -142,7 +173,10 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+
+        for i in range(self.capacity):
+            # create an extra space after every index position
+            self.storage.append(None)
 
 
 if __name__ == "__main__":
