@@ -77,7 +77,7 @@ def djb2(key):
     # scramble each letter
     for char in key:
         hash_value = (our_salt << 5) + our_salt + \
-            char  # scrambles errything up
+            len(char)  # scrambles errything up
     return hash_value
 
 
