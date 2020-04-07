@@ -153,3 +153,15 @@ run only 256 inserts, reize to 512, 1,024, 2048, gives us it still avgs out to c
 functional HT:
 -collision handling 
 any amount of inputs, still has O(1)
+
+Hash tables are O(1) average (INSERT, SEARCH, DELETE) and amortized case complexity, however it suffers from O(n) worst case time complexity. [And I think this is where your confusion is]
+
+Hash tables suffer from O(n) worst time complexity due to two reasons:
+
+1.If too many elements were hashed into the same key: looking inside this key may take O(n) time.
+2.Once a hash table has passed its load balance - it has to rehash [create a new bigger table, and re-insert each element to the table].
+
+However, it is said to be O(1) average and amortized case because:
+
+1. It is very rare that many items will be hashed to the same key [if you chose a good hash function and you don't have too big load balance.
+2. The rehash operation, which is O(n), can at most happen after n/2 ops, which are all assumed O(1): Thus when you sum the average time per op, you get : (n*O(1) + O(n)) / n) = O(1)   

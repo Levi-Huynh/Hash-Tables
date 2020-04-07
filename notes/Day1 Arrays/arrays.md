@@ -15,18 +15,18 @@ How to declare array?
 Declare the array: [2,3,4,5]
 
 1. determine how big the array needs to be
-    - an integer is 4-bytes so the array needs to be 16-bytes
-    - byte consists of 4 bits, bit is either 1 or 0
+    - `an integer is 4-bytes so the array needs to be 16-bytes`
+    - `byte consists of 4 bits, bit is either 1 or 0`
 2. Request a block of memory that will fit the array    
-    - rquest 16-bytes of memory from the computer
+    - `rquest 16-bytes of memory from the computer`
 3. Recieve the memory address of the reserved block 
-    -recieve an address to the start of the 16-bytes of reserved memory
+    -`recieve an address to the start of the 16-bytes of reserved memory`
 4. Write your values into the array 
 
 Declare array: [2,3,4,5]
 //request this much memory
-// to acess an index in the array:
-// index * sizeof(type) + start_address 
+// to acess  `memory address` of an index in the array:
+// `index * sizeof(type) + start_address` (peack efficiency requires us to start from 0 index )
 
 //25600 is memory address, doesnt matter as much, doest always start at begining 
 
