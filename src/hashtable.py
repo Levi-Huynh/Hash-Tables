@@ -65,11 +65,12 @@ class HashTable:
         Returns x with the bits shifted to the left by y places (and new bits on the right-hand-side are zeros). This is the same as multiplying x by 2**y.
 
             x >> y
-djb2 is one of the best string hash functions i know. it has excellent distribution and speed on many different sets of keys and table sizes. you are not likely to do better 
+djb2 is one of the best string hash functions i know. it has excellent distribution and speed on many different sets of keys and table sizes. you are not likely to do better
 with one of the "well known" functions such as PJW, K&R[1],
         '''
         salt = 5381
         for char in key:
+            # ORD RETURNS unicode point / INT
             hashed = ((salt << 5) + hashed) + ord(char)
 
         return hashed
@@ -89,7 +90,7 @@ with one of the "well known" functions such as PJW, K&R[1],
        # return self._hash(key) % self.capacity
 
     def insert(self, key, value):
-        '''
+        """
         Store the value with the given key.
 
         # Part 1: Hash collisions should be handled with an error warning. (Think about and
@@ -100,22 +101,12 @@ with one of the "well known" functions such as PJW, K&R[1],
         Fill this in.
         1) Hash the key ==> index
         2) If no linked list at that hash/index
-        3)  make one and put it there 
-        4) Else add our original key/value pair to the linked list 
-        '''
-        """
-        myDLL = DoublyLinkedList()
-        if self.storage[my_index] is None:
-            myDLL.add_to_head(key, value)
-            self.storage[my_index] = myDLL
-        elif self.storage[my_index] is not None:
-            myDLL.add_to_head(key, value)
-            self.storage[my_index] = myDLL
-            print("test", self.storage[my_index])
-        """
-        #print("START INSERT HERE. newkey", key)
+        3)  make one and put it there
+        4) Else add our original key/value pair to the linked list
+
+     # print("START INSERT HERE. newkey", key)
         my_index = self._hash_mod(key)
-        #print("my_index", my_index)
+        # print("my_index", my_index)
 
         # create an instance of LinkedPair using k,v
         _kv = LinkedPair(key, value)
@@ -132,6 +123,29 @@ with one of the "well known" functions such as PJW, K&R[1],
         # self.storage[my_index] becomes my storage variable here, & we give it the `value` of whatever LinkedPair tuple is
         self.storage[my_index] = _kv
 
+        """
+        index = self._hash_mod(key)
+        curr = self.storage[index]
+        prev = None
+        # iterate through based on condition:
+        # while iterating if curr.key ! = key
+        while curr is not None and curr.key != key:
+            prev = curr
+            curr = prev.next
+
+        if curr is not None:
+            # if theres a value at self.storage[index]
+            # and curr.key == key , rewrite value
+            curr.value = value
+        else:
+            # else if curr is None
+
+            new = LinkedPair(key, value)
+            # create room to be able to traverse there next
+            # if mult keys for same bucket
+            new.next = self.storage[index]
+            self.storage[index] = new
+
     def remove(self, key):
         '''
         Remove the value stored with the given key.
@@ -142,17 +156,37 @@ with one of the "well known" functions such as PJW, K&R[1],
         1) Hash the key to find index
         2) go to index (the LL holding the node w/ this k/v pair lives at that index)
         3) Look at linked list, use the original key not the hash
-        4) To find the right node, 
-        5) use remove method 
+        4) To find the right node,
+        5) use remove method
         '''
-        my_index = self._hash_mod(key)
+        index = self._hash_mod(key)
+        curr = self.storage[index]
+        # will need prev to reorient pointers & del references to curr
+        prev = None
 
-        if self.storage[my_index] is None:
-            print("key not found")
+        # if we're not deleting, we want to iterate through until we find curr.key=key
+        while curr is not None and curr.key != key:
+            # iterate
+            prev = curr
+            curr = curr.next
+
+        if curr is None:
+            print("key does not exist in storage")
+            return None
 
         else:
-            #self.storage[my_index] = self.storage[my_index].next
-            self.storage[my_index] = None
+            # if key found in storage:
+            # delete the element by deleting its ref pointers in the LL
+            if prev is None:
+                # update storage[index] to equal curr.next (curr.next=None or just None) instead of curr
+                self.storage[index] = curr.next
+                # update curr to none
+                curr = None
+            else:
+                # if prev is not None
+                # delete prev's next reference to curr
+                # instead of point prev.next ref to curr, point it to curr.next
+                prev.next = curr.next
 
     def retrieve(self, key):  # O(1)
         '''
@@ -178,23 +212,23 @@ However, it is said to be O(1) average and amortized case because:
 
 1. It is very rare that many items will be hashed to the same key [if you chose a good hash function and you don't have too big load balance.
 2. The rehash operation, which is O(n), can at most happen after n/2 ops, which are all assumed O(1): Thus when you sum the average time per op, you get : (n*O(1) + O(n)) / n) = O(1)   
+
+
+
+
         '''
-        # get current index
-        my_index = self._hash_mod(key)
-        # save self.storage[my_index] to temp var
-        curr = self.storage[my_index]
-
-        # while curr is not none
-        while curr:
-            # if curr key equals key, return curr. value
-            if curr.key == key:
-                return curr.value
-
-            # iterate to the next value to do the search, why can't just return here?^ wont iterate to next cur to  search for key
+        index = self._hash_mod(key)
+        curr = self.storage[index]
+        # iterate through the the LL at that bucket
+        # loop through only if curr is not None & curr.key is not equal to key
+        while curr is not None and curr.key != key:
             curr = curr.next
 
-        # if key not equal to any curr.key, return None
-        return None
+        if curr is None:
+            print("key is not found")
+            return None
+        else:
+            return curr.value
 
     def resize(self):
         '''
@@ -221,31 +255,23 @@ However, it is said to be O(1) average and amortized case because:
         # self.storage.append(None)
         """
 
-        # double capacity
         temp_storage = self.storage
-        self.capacity = self.capacity * 2
-        # len of temp_storage not doubled here (just using this temp var to store the old values & index of self.storage, before resizing? )
+        self.capacity *= 2
         self.storage = [None] * self.capacity
-        print("len", len(self.storage), len(temp_storage))  # 16, #8
-        for i in temp_storage:
-            print("double storage i", i)
-        #print("double_storage", double_storage.item())
-        # for all elements in double storage
-        for elem in temp_storage:
-            if elem is not None:  # elements not none at index, that reflect elements found in self.storage
-                current = elem  # set temp var
-                # loop thru all elements that aren't none & hash new k,v pairs
-                while current:
-                    # HT insert here hashes each key creating the right index
-                    # create an instance of Linked pair using key & value to handle collision
-                    # allocates empty space in next node
-                    # sets value at index to linkedPair tuple
-                    # rehash & insert key/value
-                    # this self is called on original instance of hash
-                    # rehashes new k,v, after storage capacity is doubled (moves over???)
-                    self.insert(current.key, current.value)
 
-                    current = current.next
+        for elem in temp_storage:
+            if elem is not None:
+                curr = elem
+
+            while curr:
+                # rehashes new key & inserts k,v
+                # hash => returns hashed % self.capacity
+                # since our capacity changed, our hashed index changes
+                # self.insert rehashes our key, & puts it in the
+                # corresponding indexes in our doubled capacity storage
+                self.insert(curr.key, curr.value)
+                # iterate through my next node
+                curr = curr.next
 
 
 if __name__ == "__main__":
